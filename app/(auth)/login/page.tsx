@@ -1,3 +1,5 @@
+"use client"
+
 import { useState } from "react"
 
 export default function Login(){
@@ -15,10 +17,14 @@ export default function Login(){
             </div>
             <form onSubmit={handleSubmit} >
                 <input 
+                  placeholder="enter email"
+                  type="email"
                   value={email}
                   onChange={(e)=>setEmail(e.target.value)}
                 />
                 <input 
+                  placeholder="enter password"
+                  type="password"
                   value={password}
                   onChange={(e)=>setPassword(e.target.value)}
                 />
