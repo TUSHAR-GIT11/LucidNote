@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-
+import Link from "next/link"
 export default function Login(){
     const [email,setEmail] = useState("")
     const [password,setPassword] = useState("")
@@ -28,7 +28,8 @@ export default function Login(){
                   value={password}
                   onChange={(e)=>setPassword(e.target.value)}
                 />
-                <button type="submit" >Login</button>
+                <button type="submit">Login</button>
+                <Link href="/forget-password" >Forgot Password</Link>
             </form>
         </div>
     )

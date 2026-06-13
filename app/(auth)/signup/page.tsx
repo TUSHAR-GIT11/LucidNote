@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { useState } from "react"
 
 export default function Signup() {
@@ -37,6 +38,7 @@ export default function Signup() {
           type="password"
         />
         <button type="submit">Sign Up</button>
+        <Link href="/login" >Already have an account</Link>
       </form>
     </div>
   )
