@@ -13,8 +13,17 @@ export default function Signup() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setLoading(true)
-    // TODO: call your register API here
-    console.log("signup:", name, email, password)
+    const res = await fetch("/api/auth/register",{
+     method:"POST",
+     headers: { "Content-Type" : "application/json" } ,
+     body: JSON.stringify({name,email,password})
+    })
+    const data = await res.json()
+    if(!res.ok){
+      alert(data.error)
+      setLoading(false)
+    }
+    await signIn("credentials", {email,password, callbackUrl:"/dashboard"})
     setLoading(false)
   }
 
