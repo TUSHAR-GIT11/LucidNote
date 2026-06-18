@@ -1,15 +1,15 @@
 interface Props {
-  params: {
-    id: string
-  }
+  params: Promise<{
+      id:string
+  }>
 }
 
-export default function NoteDetails(
+export default async function NoteDetails(
   { params }: Props
 ) {
-
+     const { id } = await params
   const note = {
-    id: params.id,
+    id,
     title: "Company notes",
     content:
       "This is the content of the note."
