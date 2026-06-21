@@ -16,7 +16,6 @@ export default async function NoteDetails(
   }
 
   return (
-
     <div className="p-10">
 
       <div className="flex justify-between items-center">
