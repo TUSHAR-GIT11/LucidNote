@@ -23,23 +23,19 @@ export default function Sidebar() {
 
   // DB se notes fetch karo
   useEffect(() => {
-    async function getNotes(){
-      const res = await fetch("api/notes")
-      if(!res.ok){
-        throw new Error("failed to fetch error")
-      }
+    async function getNotes() {
+      const res = await fetch("/api/notes")
+      if (!res.ok) return
       const data = await res.json()
-      setNotes(data)
+      if (Array.isArray(data)) setNotes(data)
     }
-    getNotes
+    getNotes()  // ← call karo
   }, [])
 
   // Note create karo
   const createNote = async () => {
     if (!title.trim()) return
     setLoading(true)
-    setTitle("")
-    setLoading(false)
 
     const res = await fetch("/api/notes", {
       method: "POST",
