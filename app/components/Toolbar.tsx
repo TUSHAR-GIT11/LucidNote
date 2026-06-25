@@ -17,17 +17,22 @@ interface ToolbarProps {
 export default function Toolbar({ editor, onSave, saving }: ToolbarProps) {
 
   const btn = (active: boolean) => `
-    w-10 h-10 rounded-xl border border-zinc-800
-    flex items-center justify-center text-zinc-300
+    w-10 h-10 rounded-xl border
+    flex items-center justify-center
     transition hover:bg-zinc-800
-    ${active ? "bg-zinc-700 text-white border-zinc-600" : "bg-zinc-950"}
+    ${active ? "bg-blue-600 text-white border-blue-500" : "bg-zinc-950 border-zinc-800 text-zinc-300"}
   `
 
   if (!editor) return null
 
   return (
-    <div className="h-[60px] border-b border-zinc-800 bg-black flex items-center justify-between px-4">
-      <div className="flex items-center gap-1 flex-wrap">
+    <div className="h-[60px] border-b border-zinc-800 bg-black flex items-center px-4">
+
+      {/* Left spacer — same width as Save button */}
+      <div className="w-24" />
+
+      {/* Buttons - center */}
+      <div className="flex-1 flex items-center justify-center gap-1 flex-wrap">
 
         {/* Undo / Redo */}
         {/* Undo / Redo */}
@@ -158,15 +163,17 @@ export default function Toolbar({ editor, onSave, saving }: ToolbarProps) {
 
       </div>
 
-      {/* Save */}
-      <button
-        onClick={onSave}
-        disabled={saving}
-        className="h-10 px-4 rounded-xl bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-medium flex items-center gap-2 text-sm"
-      >
-        <Save size={16} />
-        {saving ? "Saving..." : "Save"}
-      </button>
+      {/* Save button - right end */}
+      <div className="w-24 flex justify-end">
+        <button
+          onClick={onSave}
+          disabled={saving}
+          className="h-9 px-4 rounded-xl bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-medium flex items-center gap-2 text-sm"
+        >
+          <Save size={16} />
+          {saving ? "Saving..." : "Save"}
+        </button>
+      </div>
     </div>
   )
 }

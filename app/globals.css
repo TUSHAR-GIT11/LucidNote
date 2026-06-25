@@ -28,7 +28,7 @@ body {
 /* Tiptap Editor Styles */
 .ProseMirror {
   outline: none;
-  min-height: 70vh;
+  min-height: auto;
   width: 100%;
   color: #d4d4d8;
   font-size: 1.1rem;
@@ -109,4 +109,22 @@ body {
 .ProseMirror sub {
   vertical-align: sub;
   font-size: 0.75em;
+}
+
+/* Tiptap Placeholder */
+.ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: #52525b;
+  pointer-events: none;
+  height: 0;
+}
+
+/* Hide scrollbar */
+::-webkit-scrollbar {
+  display: none;
+}
+
+* {
+  scrollbar-width: none;
 }

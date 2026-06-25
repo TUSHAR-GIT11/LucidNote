@@ -21,7 +21,6 @@ export default function Sidebar() {
   const [title, setTitle] = useState("")
   const [loading, setLoading] = useState(false)
 
-  // DB se notes fetch karo
   useEffect(() => {
     async function getNotes() {
       const res = await fetch("/api/notes")
@@ -29,20 +28,17 @@ export default function Sidebar() {
       const data = await res.json()
       if (Array.isArray(data)) setNotes(data)
     }
-    getNotes()  // ← call karo
+    getNotes()
   }, [])
 
-  // Note create karo
   const createNote = async () => {
     if (!title.trim()) return
     setLoading(true)
-
     const res = await fetch("/api/notes", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ title }),
     })
-
     const note = await res.json()
     setNotes((prev) => [note, ...prev])
     setTitle("")
@@ -56,16 +52,16 @@ export default function Sidebar() {
   )
 
   return (
-    <aside className="w-[335px] h-screen bg-[#111217] border-r border-zinc-800 flex flex-col">
+    <aside className="w-[280px] h-screen bg-[#0f0f11] border-r border-white/5 flex flex-col">
 
       {/* Logo */}
-      <div className="h-[58px] px-4 border-b border-zinc-800 flex items-center gap-3">
-        <div className="relative w-7 h-7">
+      <div className="h-[58px] px-5 border-b border-white/5 flex items-center gap-3">
+        <div className="relative w-7 h-7 shrink-0">
           <div className="w-7 h-7 rounded-lg bg-blue-500 absolute" />
-          <div className="w-7 h-7 rounded-lg bg-emerald-400 opacity-80 absolute left-1 top-1" />
+          <div className="w-7 h-7 rounded-lg bg-emerald-400 opacity-70 absolute left-1 top-1" />
         </div>
-        <h1 className="text-[18px] font-semibold text-white">Lucid Note</h1>
-        <span className="ml-auto px-2 py-[2px] text-[11px] rounded-md bg-zinc-800 text-zinc-300">
+        <h1 className="text-[15px] font-semibold text-white tracking-tight">lucide note</h1>
+        <span className="ml-auto px-2 py-[3px] text-[10px] rounded-full bg-white/5 border border-white/10 text-zinc-400 font-medium">
           Free
         </span>
       </div>
@@ -76,24 +72,27 @@ export default function Sidebar() {
       </div>
 
       {/* Buttons */}
-      <div className="px-3 pt-3 space-y-2">
+      <div className="px-3 pt-2 space-y-1.5">
         <button
           onClick={() => setShowModal(true)}
-          className="h-[44px] w-full rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium flex items-center justify-center gap-2 transition-colors"
+          className="h-[38px] w-full rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-[13px] font-medium flex items-center justify-center gap-2 transition-all shadow-lg shadow-blue-600/20 active:scale-[0.98]"
         >
-          <Plus size={16} />
+          <Plus size={15} strokeWidth={2.5} />
           New Note
         </button>
 
-        <button className="h-[44px] w-full rounded-xl border border-zinc-700 bg-[#1a1b21] hover:bg-zinc-800 text-white text-sm font-medium flex items-center justify-center gap-2 transition-colors">
-          <UserPlus size={16} />
+        <button className="h-[38px] w-full rounded-xl border border-white/8 bg-white/4 hover:bg-white/8 text-zinc-300 text-[13px] font-medium flex items-center justify-center gap-2 transition-all active:scale-[0.98]">
+          <UserPlus size={15} strokeWidth={2} />
           Invite User
         </button>
       </div>
 
       {/* Notes List */}
-      <div className="flex-1 overflow-y-auto mt-4">
-        <NotesList notes={filteredNotes} />
+      <div className="flex-1 overflow-y-auto mt-3 overflow-x-visible">
+        <NotesList
+          notes={filteredNotes}
+          onDelete={(id) => setNotes((prev) => prev.filter((n) => n.id !== id))}
+        />
       </div>
 
       {/* Profile */}

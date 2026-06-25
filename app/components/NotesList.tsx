@@ -1,5 +1,9 @@
+"use client"
+
 import Link from "next/link"
-import { MoreHorizontal } from "lucide-react"
+import { useRouter } from "next/navigation"
+import { useRef, useState } from "react"
+import { MoreHorizontal, Trash2 } from "lucide-react"
 
 interface Note {
   id: string
@@ -8,24 +12,80 @@ interface Note {
 
 interface NotesListProps {
   notes: Note[]
+  onDelete: (id: string) => void
 }
 
-export default function NotesList({ notes }: NotesListProps) {
+export default function NotesList({ notes, onDelete }: NotesListProps) {
+  const router = useRouter()
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null)
+  const [menuPos, setMenuPos] = useState({ top: 0, left: 0 })
+  const btnRefs = useRef<{ [id: string]: HTMLButtonElement | null }>({})
+
+  const handleDotsClick = (e: React.MouseEvent, id: string) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (openMenuId === id) {
+      setOpenMenuId(null)
+      return
+    }
+    const btn = btnRefs.current[id]
+    if (btn) {
+      const rect = btn.getBoundingClientRect()
+      setMenuPos({ top: rect.bottom + 4, left: rect.left - 100 })
+    }
+    setOpenMenuId(id)
+  }
+
+  const handleDelete = async (id: string) => {
+    await fetch(`/api/notes/${id}`, { method: "DELETE" })
+    onDelete(id)
+    setOpenMenuId(null)
+    router.push("/dashboard")
+  }
+
   return (
-    <div className="mt-5 pt-5 border-t border-zinc-800 flex-1 overflow-y-auto">
-      <div className="px-4 mb-3 text-[12px] tracking-wider text-zinc-400 font-medium">NOTES</div>
-      <div className="px-3 space-y-1">
+    <div className="pt-2">
+      <div className="px-5 mb-2 text-[10px] tracking-widest text-zinc-600 font-semibold uppercase">
+        Notes
+      </div>
+      <div className="px-2 space-y-0.5">
         {notes.map((note) => (
-          <Link
-            key={note.id}
-            href={`/notes/${note.id}`}
-            className="h-[42px] rounded-xl hover:bg-zinc-800 text-white px-4 flex items-center justify-between"
-          >
-            <span className="text-sm truncate">{note.title}</span>
-            <MoreHorizontal size={16} className="text-zinc-400 shrink-0" />
-          </Link>
+          <div key={note.id} className="relative group">
+            <Link
+              href={`/notes/${note.id}`}
+              className="h-[36px] rounded-lg hover:bg-white/5 text-zinc-400 hover:text-white px-3 flex items-center justify-between transition-all"
+            >
+              <span className="text-[13px] truncate">{note.title}</span>
+              <button
+                ref={(el) => { btnRefs.current[note.id] = el }}
+                onClick={(e) => handleDotsClick(e, note.id)}
+                className="opacity-0 group-hover:opacity-100 text-zinc-600 hover:text-zinc-300 p-0.5 transition-all"
+              >
+                <MoreHorizontal size={14} />
+              </button>
+            </Link>
+          </div>
         ))}
       </div>
+
+      {/* Dropdown */}
+      {openMenuId && (
+        <>
+          <div className="fixed inset-0 z-40" onClick={() => setOpenMenuId(null)} />
+          <div
+            className="fixed z-50 bg-[#1a1a1f] border border-white/10 rounded-xl shadow-2xl w-36 py-1 overflow-hidden"
+            style={{ top: menuPos.top, left: menuPos.left }}
+          >
+            <button
+              onClick={() => handleDelete(openMenuId)}
+              className="w-full flex items-center gap-2.5 px-3 py-2 text-[13px] text-red-400 hover:bg-red-500/10 transition-colors"
+            >
+              <Trash2 size={13} />
+              Delete note
+            </button>
+          </div>
+        </>
+      )}
     </div>
   )
 }
