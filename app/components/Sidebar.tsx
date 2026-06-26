@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
+import { useRouter } from "next-nprogress-bar"
 import SearchBar from "./SearchBar"
 import NotesList from "./NotesList"
 import UserProfile from "./UserProfile"
@@ -13,7 +13,7 @@ interface Note {
   title: string
 }
 
-export default function Sidebar() {
+export default function Sidebar({ onNavigate }: { onNavigate?: (url: string) => void }) {
   const router = useRouter()
   const [notes, setNotes] = useState<Note[]>([])
   const [search, setSearch] = useState("")
@@ -44,7 +44,11 @@ export default function Sidebar() {
     setTitle("")
     setShowModal(false)
     setLoading(false)
-    router.push(`/notes/${note.id}`)
+    if (onNavigate) {
+      onNavigate(`/notes/${note.id}`)
+    } else {
+      router.push(`/notes/${note.id}`)
+    }
   }
 
   const filteredNotes = notes.filter((n) =>
@@ -89,9 +93,10 @@ export default function Sidebar() {
 
       {/* Notes List */}
       <div className="flex-1 overflow-y-auto mt-3 overflow-x-visible">
-        <NotesList
+      <NotesList
           notes={filteredNotes}
           onDelete={(id) => setNotes((prev) => prev.filter((n) => n.id !== id))}
+          onNavigate={onNavigate}
         />
       </div>
 

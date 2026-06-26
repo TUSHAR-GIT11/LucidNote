@@ -1,8 +1,7 @@
 "use client"
 
-import Link from "next/link"
-import { useRouter } from "next/navigation"
 import { useRef, useState } from "react"
+import { useRouter } from "next-nprogress-bar"
 import { MoreHorizontal, Trash2 } from "lucide-react"
 
 interface Note {
@@ -13,13 +12,23 @@ interface Note {
 interface NotesListProps {
   notes: Note[]
   onDelete: (id: string) => void
+  onNavigate?: (url: string) => void
 }
 
-export default function NotesList({ notes, onDelete }: NotesListProps) {
+export default function NotesList({ notes, onDelete, onNavigate }: NotesListProps) {
   const router = useRouter()
   const [openMenuId, setOpenMenuId] = useState<string | null>(null)
   const [menuPos, setMenuPos] = useState({ top: 0, left: 0 })
   const btnRefs = useRef<{ [id: string]: HTMLButtonElement | null }>({})
+
+  const handleNoteClick = (noteId: string) => {
+    const url = `/notes/${noteId}`
+    if (onNavigate) {
+      onNavigate(url)
+    } else {
+      router.push(url)
+    }
+  }
 
   const handleDotsClick = (e: React.MouseEvent, id: string) => {
     e.preventDefault()
@@ -51,19 +60,19 @@ export default function NotesList({ notes, onDelete }: NotesListProps) {
       <div className="px-2 space-y-0.5">
         {notes.map((note) => (
           <div key={note.id} className="relative group">
-            <Link
-              href={`/notes/${note.id}`}
-              className="h-[36px] rounded-lg hover:bg-white/5 text-zinc-400 hover:text-white px-3 flex items-center justify-between transition-all"
+            <button
+              onClick={() => handleNoteClick(note.id)}
+              className="h-[36px] w-full rounded-lg hover:bg-white/5 text-zinc-400 hover:text-white px-3 flex items-center justify-between transition-all text-left"
             >
               <span className="text-[13px] truncate">{note.title}</span>
-              <button
-                ref={(el) => { btnRefs.current[note.id] = el }}
-                onClick={(e) => handleDotsClick(e, note.id)}
+              <span
+                ref={(el) => { btnRefs.current[note.id] = el as HTMLButtonElement }}
+                onClick={(e) => handleDotsClick(e as React.MouseEvent, note.id)}
                 className="opacity-0 group-hover:opacity-100 text-zinc-600 hover:text-zinc-300 p-0.5 transition-all"
               >
                 <MoreHorizontal size={14} />
-              </button>
-            </Link>
+              </span>
+            </button>
           </div>
         ))}
       </div>

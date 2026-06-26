@@ -23,7 +23,13 @@ export default function Toolbar({ editor, onSave, saving }: ToolbarProps) {
     ${active ? "bg-blue-600 text-white border-blue-500" : "bg-zinc-950 border-zinc-800 text-zinc-300"}
   `
 
-  if (!editor) return null
+  if (!editor) return (
+    <div className="h-[60px] border-b border-zinc-800 bg-black flex items-center px-4">
+      <div className="w-24" />
+      <div className="flex-1" />
+      <div className="w-24" />
+    </div>
+  )
 
   return (
     <div className="h-[60px] border-b border-zinc-800 bg-black flex items-center px-4">
