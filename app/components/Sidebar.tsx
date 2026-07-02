@@ -44,6 +44,7 @@ export default function Sidebar({ onNavigate }: { onNavigate?: (url: string) => 
     setTitle("")
     setShowModal(false)
     setLoading(false)
+    
     if (onNavigate) {
       onNavigate(`/notes/${note.id}`)
     } else {
@@ -101,7 +102,7 @@ export default function Sidebar({ onNavigate }: { onNavigate?: (url: string) => 
       </div>
 
       {/* Profile */}
-      <UserProfile name="Admin" org="abcd" email="tushargupta10th@gmail.com" />
+      <UserProfile />
 
       {/* Modal */}
       {showModal && (

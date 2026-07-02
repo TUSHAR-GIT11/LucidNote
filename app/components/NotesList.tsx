@@ -49,7 +49,7 @@ export default function NotesList({ notes, onDelete, onNavigate }: NotesListProp
     await fetch(`/api/notes/${id}`, { method: "DELETE" })
     onDelete(id)
     setOpenMenuId(null)
-    router.push("/dashboard")
+    
   }
 
   return (

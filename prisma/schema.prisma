@@ -7,6 +7,27 @@ datasource db {
   provider = "postgresql"
 }
 
+model Organization {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  createdAt   DateTime @default(now())
+  members     OrganizationMember[]
+  notes       Note[]
+}
+
+model OrganizationMember {
+  id             String       @id @default(cuid())
+  userId         String
+  organizationId String
+  role           String       @default("member") 
+  joinedAt       DateTime     @default(now())
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, organizationId])
+}
+
 model User {
   id            String    @id @default(cuid())
   name          String?
@@ -18,18 +39,22 @@ model User {
   accounts      Account[]
   sessions      Session[]
   notes         Note[]
+  organization  OrganizationMember[]
 }
 
 
 model Note {
-  id        String   @id @default(cuid())
-  title     String
-  content   String   @default("")
-  userId    String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id             String        @id @default(cuid())
+  title          String
+  content        String        @default("")
+  userId         String
+  organizationId String?       // Optional — personal ya org note
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 }
+
 
 
 model Account {
