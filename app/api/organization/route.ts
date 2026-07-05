@@ -51,4 +51,3 @@ export async function POST(req:NextRequest){
     })
     return NextResponse.json(org,{ status:201 })
 }
-

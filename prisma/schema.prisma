@@ -14,6 +14,7 @@ model Organization {
   createdAt   DateTime @default(now())
   members     OrganizationMember[]
   notes       Note[]
+  invites     Invite[]
 }
 
 model OrganizationMember {
@@ -48,11 +49,22 @@ model Note {
   title          String
   content        String        @default("")
   userId         String
-  organizationId String?       // Optional — personal ya org note
+  organizationId String?       
   createdAt      DateTime      @default(now())
   updatedAt      DateTime      @updatedAt
   user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+}
+
+model Invite {
+  id             String   @id @default(cuid())
+  email          String
+  organizationId String
+  token          String   @unique
+  expiresAt      DateTime
+  used           Boolean  @default(false)
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  createdAt      DateTime @default(now())
 }
 
 
