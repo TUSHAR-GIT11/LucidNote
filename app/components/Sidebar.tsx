@@ -7,6 +7,7 @@ import NotesList from "./NotesList"
 import UserProfile from "./UserProfile"
 import CreateNoteModal from "./CreateNoteModal"
 import { Plus, UserPlus } from "lucide-react"
+import InviteModal from "./InviteModal"
 
 interface Note {
   id: string
@@ -20,6 +21,8 @@ export default function Sidebar({ onNavigate }: { onNavigate?: (url: string) => 
   const [showModal, setShowModal] = useState(false)
   const [title, setTitle] = useState("")
   const [loading, setLoading] = useState(false)
+  const [showInvite, setShowInvite] = useState(false)
+  const [orgId, setOrgId] = useState("")
 
   useEffect(() => {
     async function getNotes() {
@@ -29,6 +32,14 @@ export default function Sidebar({ onNavigate }: { onNavigate?: (url: string) => 
       if (Array.isArray(data)) setNotes(data)
     }
     getNotes()
+  }, [])
+
+  useEffect(() => {
+    fetch("/api/organization")
+      .then(r => r.json())
+      .then(data => {
+        if (data?.id) setOrgId(data.id)
+      })
   }, [])
 
   const createNote = async () => {
@@ -44,7 +55,7 @@ export default function Sidebar({ onNavigate }: { onNavigate?: (url: string) => 
     setTitle("")
     setShowModal(false)
     setLoading(false)
-    
+
     if (onNavigate) {
       onNavigate(`/notes/${note.id}`)
     } else {
@@ -86,15 +97,22 @@ export default function Sidebar({ onNavigate }: { onNavigate?: (url: string) => 
           New Note
         </button>
 
-        <button className="h-[38px] w-full rounded-xl border border-white/8 bg-white/4 hover:bg-white/8 text-zinc-300 text-[13px] font-medium flex items-center justify-center gap-2 transition-all active:scale-[0.98]">
+        <button onClick={() => setShowInvite(true)} className="h-[38px] w-full rounded-xl border border-white/8 bg-white/4 hover:bg-white/8 text-zinc-300 text-[13px] font-medium flex items-center justify-center gap-2 transition-all active:scale-[0.98]">
           <UserPlus size={15} strokeWidth={2} />
           Invite User
         </button>
+
+        {showInvite && orgId && (
+          <InviteModal
+            organizationId={orgId}
+            onClose={() => setShowInvite(false)}
+          />
+        )}
       </div>
 
       {/* Notes List */}
       <div className="flex-1 overflow-y-auto mt-3 overflow-x-visible">
-      <NotesList
+        <NotesList
           notes={filteredNotes}
           onDelete={(id) => setNotes((prev) => prev.filter((n) => n.id !== id))}
           onNavigate={onNavigate}

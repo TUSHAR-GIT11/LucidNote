@@ -54,6 +54,7 @@ model Note {
   updatedAt      DateTime      @updatedAt
   user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   organization   Organization? @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  sharedNote     SharedNote?
 }
 
 model Invite {
@@ -101,4 +102,17 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+model SharedNote {
+  id               String @id @default(cuid())
+  noteId           String @unique
+  token            String @unique
+  isPublic         Boolean @default(true)
+  expiresAt        DateTime?
+  viewCount        Int   @default(0)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  note             Note @relation(fields: [noteId], references: [id], onDelete:Cascade )
 }
