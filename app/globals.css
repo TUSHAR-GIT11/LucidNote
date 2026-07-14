@@ -144,3 +144,74 @@ body {
 .page-transition {
   animation: page-enter 0.4s ease-out;
 }
+
+/* Professional Responsive Enhancements */
+
+/* Enhanced responsive typography */
+@media (min-width: 641px) and (max-width: 1024px) {
+  .ProseMirror {
+    font-size: 1.1rem;
+    line-height: 1.7;
+  }
+  
+  .ProseMirror h2 {
+    font-size: 1.75rem;
+    margin: 1rem 0 0.5rem;
+  }
+}
+
+@media (min-width: 1025px) {
+  .ProseMirror {
+    font-size: 1.125rem;
+    line-height: 1.8;
+  }
+  
+  .ProseMirror h2 {
+    font-size: 2rem;
+    margin: 1.2rem 0 0.6rem;
+  }
+}
+
+/* Enhanced touch improvements */
+@media (max-width: 768px) {
+  /* Prevent zoom on input focus in iOS */
+  input[type="text"], textarea {
+    font-size: 16px;
+  }
+  
+  .ProseMirror {
+    touch-action: manipulation;
+  }
+}
+
+/* High DPI optimizations */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .ProseMirror {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* Professional animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Safe area adjustments for modern devices */
+@supports (padding: max(0px)) {
+  .sidebar {
+    padding-left: max(1rem, env(safe-area-inset-left));
+    padding-right: max(1rem, env(safe-area-inset-right));
+  }
+}

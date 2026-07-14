@@ -15,15 +15,23 @@ import { useEditorContext } from "@/app/context/EditorContext"
 
 export default function NotePage() {
   const { id } = useParams<{ id: string }>()
-  const { setEditor, setOnSave, setSaving, setIsDirty } = useEditorContext()
+  const { setEditor, setOnSave, setSaving, setIsDirty, setNoteId } = useEditorContext()
 
   const [title, setTitle] = useState("")
   const [saved, setSaved] = useState(false)
   const [, forceUpdate] = useState(0)
 
+  // Set noteId in context
+  useEffect(() => {
+    setNoteId(id)
+    return () => setNoteId(null)
+  }, [id, setNoteId])
+
   const editor = useEditor({
     extensions: [
-      StarterKit,
+      StarterKit.configure({
+        underline: false,
+      }),
       Underline,
       Highlight,
       Superscript,
@@ -32,6 +40,7 @@ export default function NotePage() {
       Placeholder.configure({ placeholder: "Start writing your note here..." }),
     ],
     content: "",
+    immediatelyRender: false,
     onUpdate() {
       forceUpdate(n => n + 1)
       setIsDirty(true)
@@ -42,7 +51,9 @@ export default function NotePage() {
   })
 
   useEffect(() => {
-    if (editor) setEditor(editor)
+    if (editor) {
+      setEditor(editor)
+    }
     return () => setEditor(null)
   }, [editor, setEditor])
 
@@ -59,7 +70,7 @@ export default function NotePage() {
         editor.commands.setContent(note.content || "")
         setIsDirty(false)
       })
-  }, [id, editor])
+  }, [id, editor, setIsDirty])
 
   const save = useCallback(async () => {
     setSaving(true)
@@ -81,20 +92,20 @@ export default function NotePage() {
 
   return (
     <>
-      <div className="flex-1 overflow-y-auto page-transition">
-        <div className="max-w-2xl px-16 pt-14 pb-32">
+      <div className="flex-1 overflow-y-auto">
+        <div className="w-full pl-4 sm:pl-6 lg:pl-8 pr-4 sm:pr-6 lg:pr-8 pt-4 sm:pt-5 pb-32">
           <input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             placeholder="Untitled"
-            className="w-full bg-transparent text-white text-4xl font-bold outline-none mb-6 placeholder:text-zinc-700 leading-tight"
+            className="w-full bg-transparent text-white text-2xl sm:text-2xl lg:text-3xl font-bold outline-none mb-3 placeholder:text-zinc-700 leading-snug"
           />
           <Editor editor={editor} />
         </div>
       </div>
 
       {saved && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 px-4 py-2.5 rounded-xl bg-zinc-900 border border-zinc-700 shadow-xl text-sm text-white animate-fade-in">
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 px-4 py-2.5 rounded-xl bg-zinc-900 border border-zinc-700 shadow-xl text-sm text-white">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5">
             <polyline points="20 6 9 17 4 12" />
           </svg>

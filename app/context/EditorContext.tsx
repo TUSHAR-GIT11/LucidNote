@@ -12,6 +12,8 @@ interface EditorContextType {
   setSaving: (v: boolean) => void
   isDirty: boolean
   setIsDirty: (v: boolean) => void
+  noteId: string | null
+  setNoteId: (id: string | null) => void
 }
 
 const EditorContext = createContext<EditorContextType>({
@@ -23,6 +25,8 @@ const EditorContext = createContext<EditorContextType>({
   setSaving: () => {},
   isDirty: false,
   setIsDirty: () => {},
+  noteId: null,
+  setNoteId: () => {},
 })
 
 export function EditorProvider({ children }: { children: React.ReactNode }) {
@@ -30,9 +34,16 @@ export function EditorProvider({ children }: { children: React.ReactNode }) {
   const [onSave, setOnSave] = useState<(() => void) | null>(null)
   const [saving, setSaving] = useState(false)
   const [isDirty, setIsDirty] = useState(false)
+  const [noteId, setNoteId] = useState<string | null>(null)
 
   return (
-    <EditorContext.Provider value={{ editor, setEditor, onSave, setOnSave, saving, setSaving, isDirty, setIsDirty }}>
+    <EditorContext.Provider value={{ 
+      editor, setEditor, 
+      onSave, setOnSave, 
+      saving, setSaving, 
+      isDirty, setIsDirty, 
+      noteId, setNoteId 
+    }}>
       {children}
     </EditorContext.Provider>
   )

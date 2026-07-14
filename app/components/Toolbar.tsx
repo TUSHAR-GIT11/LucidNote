@@ -4,20 +4,63 @@ import {
   Undo2, Redo2, Heading2, List, Quote, Code2, Minus,
   Bold, Italic, Strikethrough, Underline, Highlighter,
   Superscript, Subscript, AlignLeft, AlignCenter,
-  AlignRight, AlignJustify, Save
+  AlignRight, AlignJustify, Save, Share2
 } from "lucide-react"
 import { Editor } from "@tiptap/react"
+import { useState, useEffect } from "react"
 
 interface ToolbarProps {
   editor: Editor | null
   onSave?: () => void
   saving?: boolean
+  noteId?: string
 }
 
-export default function Toolbar({ editor, onSave, saving }: ToolbarProps) {
+export default function Toolbar({ editor, onSave, saving, noteId }: ToolbarProps) {
+
+  const [sharing, setSharing] = useState(false)
+  const [copied, setCopied] = useState(false)
+  const [, setUpdate] = useState(0)
+
+  const handleShare = async () => {
+    if (!noteId) return
+    setSharing(true)
+
+    const res = await fetch(`/api/notes/${noteId}/share`, {
+      method: "POST"
+    })
+    const data = await res.json()
+    const url = `${window.location.origin}/shared/${data.token}`
+
+    await navigator.clipboard.writeText(url)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+    setSharing(false)
+  }
+
+  // Listen for editor updates
+  useEffect(() => {
+    if (!editor) return
+
+    const updateHandler = () => {
+      setUpdate(n => n + 1)
+    }
+
+    editor.on('update', updateHandler)
+    editor.on('selectionUpdate', updateHandler)
+    editor.on('focus', updateHandler)
+    editor.on('blur', updateHandler)
+
+    return () => {
+      editor.off('update', updateHandler)
+      editor.off('selectionUpdate', updateHandler)
+      editor.off('focus', updateHandler)
+      editor.off('blur', updateHandler)
+    }
+  }, [editor])
 
   const btn = (active: boolean) => `
-    w-10 h-10 rounded-xl border
+    w-9 h-9 md:w-10 md:h-10 rounded-xl border shrink-0
     flex items-center justify-center
     transition hover:bg-zinc-800
     ${active ? "bg-blue-600 text-white border-blue-500" : "bg-zinc-950 border-zinc-800 text-zinc-300"}
@@ -34,152 +77,156 @@ export default function Toolbar({ editor, onSave, saving }: ToolbarProps) {
   return (
     <div className="h-[60px] border-b border-zinc-800 bg-black flex items-center px-4">
 
-      {/* Left spacer — same width as Save button */}
-      <div className="w-24" />
-
       {/* Buttons - center */}
       <div className="flex-1 flex items-center justify-center gap-1 flex-wrap">
 
         {/* Undo / Redo */}
-        {/* Undo / Redo */}
-<button
-  onMouseDown={(e) => { e.preventDefault(); editor.chain().focus().undo().run() }}
-  className={btn(false)}>
-  <Undo2 size={16} />
-</button>
+        <button
+          onMouseDown={(e) => { e.preventDefault(); editor.chain().focus().undo().run() }}
+          className={btn(false)}>
+          <Undo2 size={16} />
+        </button>
 
-<button
-  onMouseDown={(e) => { e.preventDefault(); editor.chain().focus().redo().run() }}
-  className={btn(false)}>
-  <Redo2 size={16} />
-</button>
+        <button
+          onMouseDown={(e) => { e.preventDefault(); editor.chain().focus().redo().run() }}
+          className={btn(false)}>
+          <Redo2 size={16} />
+        </button>
 
-{/* Heading */}
-<button
-  onMouseDown={(e) => { e.preventDefault(); editor.chain().focus().toggleHeading({ level: 2 }).run() }}
-  className={btn(editor.isActive("heading", { level: 2 }))}>
-  <Heading2 size={16} />
-</button>
+        {/* Heading */}
+        <button
+          onMouseDown={(e) => { e.preventDefault(); editor.chain().focus().toggleHeading({ level: 2 }).run() }}
+          className={btn(editor.isActive("heading", { level: 2 }))}>
+          <Heading2 size={16} />
+        </button>
 
-{/* List */}
-<button
-  onMouseDown={(e) => { e.preventDefault(); editor.chain().focus().toggleBulletList().run() }}
-  className={btn(editor.isActive("bulletList"))}>
-  <List size={16} />
-</button>
+        {/* List */}
+        <button
+          onMouseDown={(e) => { e.preventDefault(); editor.chain().focus().toggleBulletList().run() }}
+          className={btn(editor.isActive("bulletList"))}>
+          <List size={16} />
+        </button>
 
-{/* Blockquote */}
-<button
-  onMouseDown={(e) => { e.preventDefault(); editor.chain().focus().toggleBlockquote().run() }}
-  className={btn(editor.isActive("blockquote"))}>
-  <Quote size={16} />
-</button>
+        {/* Blockquote */}
+        <button
+          onMouseDown={(e) => { e.preventDefault(); editor.chain().focus().toggleBlockquote().run() }}
+          className={btn(editor.isActive("blockquote"))}>
+          <Quote size={16} />
+        </button>
 
-{/* Code */}
-<button
-  onMouseDown={(e) => { e.preventDefault(); editor.chain().focus().toggleCode().run() }}
-  className={btn(editor.isActive("code"))}>
-  <Code2 size={16} />
-</button>
+        {/* Code */}
+        <button
+          onMouseDown={(e) => { e.preventDefault(); editor.chain().focus().toggleCode().run() }}
+          className={btn(editor.isActive("code"))}>
+          <Code2 size={16} />
+        </button>
 
-{/* Divider */}
-<button
-  onMouseDown={(e) => { e.preventDefault(); editor.chain().focus().setHorizontalRule().run() }}
-  className={btn(false)}>
-  <Minus size={16} />
-</button>
+        {/* Divider */}
+        <button
+          onMouseDown={(e) => { e.preventDefault(); editor.chain().focus().setHorizontalRule().run() }}
+          className={btn(false)}>
+          <Minus size={16} />
+        </button>
 
-{/* Bold */}
-<button
-  onMouseDown={(e) => { e.preventDefault(); editor.chain().focus().toggleBold().run() }}
-  className={btn(editor.isActive("bold"))}>
-  <Bold size={16} />
-</button>
+        {/* Bold */}
+        <button
+          onMouseDown={(e) => { e.preventDefault(); editor.chain().focus().toggleBold().run() }}
+          className={btn(editor.isActive("bold"))}>
+          <Bold size={16} />
+        </button>
 
-{/* Italic */}
-<button
-  onMouseDown={(e) => { e.preventDefault(); editor.chain().focus().toggleItalic().run() }}
-  className={btn(editor.isActive("italic"))}>
-  <Italic size={16} />
-</button>
+        {/* Italic */}
+        <button
+          onMouseDown={(e) => { e.preventDefault(); editor.chain().focus().toggleItalic().run() }}
+          className={btn(editor.isActive("italic"))}>
+          <Italic size={16} />
+        </button>
 
-{/* Strike */}
-<button
-  onMouseDown={(e) => { e.preventDefault(); editor.chain().focus().toggleStrike().run() }}
-  className={btn(editor.isActive("strike"))}>
-  <Strikethrough size={16} />
-</button>
+        {/* Strike */}
+        <button
+          onMouseDown={(e) => { e.preventDefault(); editor.chain().focus().toggleStrike().run() }}
+          className={btn(editor.isActive("strike"))}>
+          <Strikethrough size={16} />
+        </button>
 
-{/* Underline */}
-<button
-  onMouseDown={(e) => { e.preventDefault(); editor.chain().focus().toggleUnderline().run() }}
-  className={btn(editor.isActive("underline"))}>
-  <Underline size={16} />
-</button>
+        {/* Underline */}
+        <button
+          onMouseDown={(e) => { e.preventDefault(); editor.chain().focus().toggleUnderline().run() }}
+          className={btn(editor.isActive("underline"))}>
+          <Underline size={16} />
+        </button>
 
-{/* Highlight */}
-<button
-  onMouseDown={(e) => { e.preventDefault(); editor.chain().focus().toggleHighlight().run() }}
-  className={btn(editor.isActive("highlight"))}>
-  <Highlighter size={16} />
-</button>
+        {/* Highlight */}
+        <button
+          onMouseDown={(e) => { e.preventDefault(); editor.chain().focus().toggleHighlight().run() }}
+          className={btn(editor.isActive("highlight"))}>
+          <Highlighter size={16} />
+        </button>
 
-{/* Superscript */}
-<button
-  onMouseDown={(e) => { e.preventDefault(); editor.chain().focus().toggleSuperscript().run() }}
-  className={btn(editor.isActive("superscript"))}>
-  <Superscript size={16} />
-</button>
+        {/* Superscript */}
+        <button
+          onMouseDown={(e) => { e.preventDefault(); editor.chain().focus().toggleSuperscript().run() }}
+          className={btn(editor.isActive("superscript"))}>
+          <Superscript size={16} />
+        </button>
 
-{/* Subscript */}
-<button
-  onMouseDown={(e) => { e.preventDefault(); editor.chain().focus().toggleSubscript().run() }}
-  className={btn(editor.isActive("subscript"))}>
-  <Subscript size={16} />
-</button>
+        {/* Subscript */}
+        <button
+          onMouseDown={(e) => { e.preventDefault(); editor.chain().focus().toggleSubscript().run() }}
+          className={btn(editor.isActive("subscript"))}>
+          <Subscript size={16} />
+        </button>
 
-{/* Align Left */}
-<button
-  onMouseDown={(e) => { e.preventDefault(); editor.chain().focus().setTextAlign("left").run() }}
-  className={btn(editor.isActive({ textAlign: "left" }))}>
-  <AlignLeft size={16} />
-</button>
+        {/* Align Left */}
+        <button
+          onMouseDown={(e) => { e.preventDefault(); editor.chain().focus().setTextAlign("left").run() }}
+          className={btn(editor.isActive({ textAlign: "left" }))}>
+          <AlignLeft size={16} />
+        </button>
 
-{/* Align Center */}
-<button
-  onMouseDown={(e) => { e.preventDefault(); editor.chain().focus().setTextAlign("center").run() }}
-  className={btn(editor.isActive({ textAlign: "center" }))}>
-  <AlignCenter size={16} />
-</button>
+        {/* Align Center */}
+        <button
+          onMouseDown={(e) => { e.preventDefault(); editor.chain().focus().setTextAlign("center").run() }}
+          className={btn(editor.isActive({ textAlign: "center" }))}>
+          <AlignCenter size={16} />
+        </button>
 
-{/* Align Right */}
-<button
-  onMouseDown={(e) => { e.preventDefault(); editor.chain().focus().setTextAlign("right").run() }}
-  className={btn(editor.isActive({ textAlign: "right" }))}>
-  <AlignRight size={16} />
-</button>
+        {/* Align Right */}
+        <button
+          onMouseDown={(e) => { e.preventDefault(); editor.chain().focus().setTextAlign("right").run() }}
+          className={btn(editor.isActive({ textAlign: "right" }))}>
+          <AlignRight size={16} />
+        </button>
 
-{/* Align Justify */}
-<button
-  onMouseDown={(e) => { e.preventDefault(); editor.chain().focus().setTextAlign("justify").run() }}
-  className={btn(editor.isActive({ textAlign: "justify" }))}>
-  <AlignJustify size={16} />
-</button>
-
+        {/* Align Justify */}
+        <button
+          onMouseDown={(e) => { e.preventDefault(); editor.chain().focus().setTextAlign("justify").run() }}
+          className={btn(editor.isActive({ textAlign: "justify" }))}>
+          <AlignJustify size={16} />
+        </button>
 
       </div>
 
-      {/* Save button - right end */}
-      <div className="w-24 flex justify-end">
+      {/* Save & Share - Right side */}
+      <div className="flex items-center gap-2 w-32 justify-end">
         <button
           onClick={onSave}
           disabled={saving}
-          className="h-9 px-4 rounded-xl bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-medium flex items-center gap-2 text-sm"
+          className="h-9 px-3 rounded-xl bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white font-medium flex items-center gap-2 text-sm"
         >
           <Save size={16} />
-          {saving ? "Saving..." : "Save"}
+          {saving ? "..." : "Save"}
+        </button>
+        <button
+          onClick={handleShare}
+          disabled={sharing || !noteId}
+          className="h-9 px-3 rounded-xl border border-zinc-700 hover:bg-zinc-800 disabled:opacity-50 text-zinc-300 font-medium flex items-center gap-1 text-sm"
+        >
+          <Share2 size={16} />
+          {copied ? "✓" : sharing ? "..." : "Share"}
         </button>
       </div>
+
     </div>
   )
 }

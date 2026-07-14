@@ -6,7 +6,7 @@ import SearchBar from "./SearchBar"
 import NotesList from "./NotesList"
 import UserProfile from "./UserProfile"
 import CreateNoteModal from "./CreateNoteModal"
-import { Plus, UserPlus } from "lucide-react"
+import { Plus, UserPlus, X } from "lucide-react"
 import InviteModal from "./InviteModal"
 
 interface Note {
@@ -14,7 +14,13 @@ interface Note {
   title: string
 }
 
-export default function Sidebar({ onNavigate }: { onNavigate?: (url: string) => void }) {
+interface SidebarProps {
+  onNavigate?: (url: string) => void
+  isOpen?: boolean
+  onClose?: () => void
+}
+
+export default function Sidebar({ onNavigate, isOpen = true, onClose }: SidebarProps) {
   const router = useRouter()
   const [notes, setNotes] = useState<Note[]>([])
   const [search, setSearch] = useState("")
@@ -56,10 +62,24 @@ export default function Sidebar({ onNavigate }: { onNavigate?: (url: string) => 
     setShowModal(false)
     setLoading(false)
 
+    // Close sidebar on mobile after creating note
+    if (onClose) onClose()
+
     if (onNavigate) {
       onNavigate(`/notes/${note.id}`)
     } else {
       router.push(`/notes/${note.id}`)
+    }
+  }
+
+  const handleNoteSelect = (url: string) => {
+    // Close sidebar on mobile after selecting note
+    if (onClose) onClose()
+    
+    if (onNavigate) {
+      onNavigate(url)
+    } else {
+      router.push(url)
     }
   }
 
@@ -68,61 +88,83 @@ export default function Sidebar({ onNavigate }: { onNavigate?: (url: string) => 
   )
 
   return (
-    <aside className="w-[280px] h-screen bg-[#0f0f11] border-r border-white/5 flex flex-col">
+    <aside className={`
+      w-full sm:w-80 lg:w-[280px] xl:w-[320px] 
+      h-screen bg-[#0f0f11] border-r border-white/5 
+      flex flex-col
+      lg:relative lg:translate-x-0
+      ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+      transition-transform duration-300 ease-in-out
+    `}>
 
-      {/* Logo */}
-      <div className="h-[58px] px-5 border-b border-white/5 flex items-center gap-3">
-        <div className="relative w-7 h-7 shrink-0">
-          <div className="w-7 h-7 rounded-lg bg-blue-500 absolute" />
-          <div className="w-7 h-7 rounded-lg bg-emerald-400 opacity-70 absolute left-1 top-1" />
+      {/* Header with Close Button (Mobile) */}
+      <div className="h-12 sm:h-14 lg:h-[58px] px-3 sm:px-4 lg:px-5 border-b border-white/5 flex items-center gap-3">
+        
+        {/* Close Button - Mobile Only */}
+        {onClose && (
+          <button
+            onClick={onClose}
+            className="lg:hidden p-1 text-zinc-400 hover:text-white rounded"
+            aria-label="Close sidebar"
+          >
+            <X size={20} />
+          </button>
+        )}
+
+        {/* Logo */}
+        <div className="relative w-6 sm:w-7 h-6 sm:h-7 shrink-0">
+          <div className="w-6 sm:w-7 h-6 sm:h-7 rounded-lg bg-blue-500 absolute" />
+          <div className="w-6 sm:w-7 h-6 sm:h-7 rounded-lg bg-emerald-400 opacity-70 absolute left-1 top-1" />
         </div>
-        <h1 className="text-[15px] font-semibold text-white tracking-tight">lucide note</h1>
-        <span className="ml-auto px-2 py-[3px] text-[10px] rounded-full bg-white/5 border border-white/10 text-zinc-400 font-medium">
+        
+        <h1 className="text-sm sm:text-[15px] font-semibold text-white tracking-tight">
+          lucide note
+        </h1>
+        
+        <span className="ml-auto px-2 py-[3px] text-[10px] rounded-full bg-white/5 border border-white/10 text-zinc-400 font-medium hidden sm:inline">
           Free
         </span>
       </div>
 
       {/* Search */}
-      <div className="px-3 pt-3">
+      <div className="px-3 sm:px-4 lg:px-3 pt-3">
         <SearchBar value={search} onChange={setSearch} />
       </div>
 
-      {/* Buttons */}
-      <div className="px-3 pt-2 space-y-1.5">
+      {/* Action Buttons */}
+      <div className="px-3 sm:px-4 lg:px-3 pt-2 space-y-1.5">
         <button
           onClick={() => setShowModal(true)}
-          className="h-[38px] w-full rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-[13px] font-medium flex items-center justify-center gap-2 transition-all shadow-lg shadow-blue-600/20 active:scale-[0.98]"
+          className="h-9 sm:h-[38px] w-full rounded-xl bg-blue-600 hover:bg-blue-500 text-white text-xs sm:text-[13px] font-medium flex items-center justify-center gap-2 transition-all shadow-lg shadow-blue-600/20 active:scale-[0.98]"
         >
-          <Plus size={15} strokeWidth={2.5} />
+          <Plus size={14} strokeWidth={2.5} className="sm:w-[15px] sm:h-[15px]" />
           New Note
         </button>
 
-        <button onClick={() => setShowInvite(true)} className="h-[38px] w-full rounded-xl border border-white/8 bg-white/4 hover:bg-white/8 text-zinc-300 text-[13px] font-medium flex items-center justify-center gap-2 transition-all active:scale-[0.98]">
-          <UserPlus size={15} strokeWidth={2} />
+        <button 
+          onClick={() => setShowInvite(true)} 
+          className="h-9 sm:h-[38px] w-full rounded-xl border border-white/8 bg-white/4 hover:bg-white/8 text-zinc-300 text-xs sm:text-[13px] font-medium flex items-center justify-center gap-2 transition-all active:scale-[0.98]"
+        >
+          <UserPlus size={14} strokeWidth={2} className="sm:w-[15px] sm:h-[15px]" />
           Invite User
         </button>
-
-        {showInvite && orgId && (
-          <InviteModal
-            organizationId={orgId}
-            onClose={() => setShowInvite(false)}
-          />
-        )}
       </div>
 
       {/* Notes List */}
-      <div className="flex-1 overflow-y-auto mt-3 overflow-x-visible">
+      <div className="flex-1 overflow-y-auto mt-3 px-1">
         <NotesList
           notes={filteredNotes}
           onDelete={(id) => setNotes((prev) => prev.filter((n) => n.id !== id))}
-          onNavigate={onNavigate}
+          onNavigate={handleNoteSelect}
         />
       </div>
 
-      {/* Profile */}
-      <UserProfile />
+      {/* User Profile */}
+      <div className="shrink-0">
+        <UserProfile />
+      </div>
 
-      {/* Modal */}
+      {/* Modals */}
       {showModal && (
         <CreateNoteModal
           title={title}
@@ -130,6 +172,13 @@ export default function Sidebar({ onNavigate }: { onNavigate?: (url: string) => 
           onChange={setTitle}
           onCreate={createNote}
           onClose={() => setShowModal(false)}
+        />
+      )}
+
+      {showInvite && orgId && (
+        <InviteModal
+          organizationId={orgId}
+          onClose={() => setShowInvite(false)}
         />
       )}
     </aside>
