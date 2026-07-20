@@ -1,36 +1,148 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# LucidNotes
 
-## Getting Started
+A full-stack note-taking application with real-time collaboration and sharing capabilities.
 
-First, run the development server:
+## Tech Stack
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **Frontend**: Next.js 16, TypeScript, Tailwind CSS
+- **Backend**: Node.js, Next.js API Routes, REST API
+- **Database**: PostgreSQL with Prisma ORM
+- **Authentication**: NextAuth.js
+- **Editor**: TipTap (Rich Text)
+
+## Features
+
+- Create, edit, and delete notes with rich text formatting
+- Share notes via unique tokens
+- Organization and team collaboration
+- User authentication and email verification
+- Responsive design (mobile, tablet, desktop)
+- Dark theme interface
+
+## Installation
+
+### Prerequisites
+- Node.js 18+
+- PostgreSQL database
+
+### Setup
+
+1. Clone the repository
+   ```bash
+   git clone <repository-url>
+   cd my-app
+   ```
+
+2. Install dependencies
+   ```bash
+   npm install
+   ```
+
+3. Configure environment variables (`.env`)
+   ```
+   DATABASE_URL="postgresql://user:password@localhost:5432/lucidnotes"
+   NEXTAUTH_SECRET="your-secret-key"
+   NEXTAUTH_URL="http://localhost:3000"
+   ```
+
+4. Setup database
+   ```bash
+   npx prisma migrate dev
+   ```
+
+5. Run development server
+   ```bash
+   npm run dev
+   ```
+
+Open [http://localhost:3000](http://localhost:3000)
+
+## Project Structure
+
+```
+app/
+├── api/              # REST API endpoints
+│   ├── auth/        # Authentication
+│   ├── notes/       # Note CRUD
+│   ├── organization/# Organization management
+│   └── shared/      # Share links
+├── components/       # React components
+├── context/          # State management
+└── (auth)/          # Auth pages
+
+lib/
+├── authOptions.ts   # NextAuth config
+└── prisma.ts        # Database client
+
+prisma/
+└── schema.prisma    # Database schema
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## API Endpoints
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Notes
+- `GET /api/notes` - List user notes
+- `POST /api/notes` - Create note
+- `GET /api/notes/[id]` - Get note
+- `PUT /api/notes/[id]` - Update note
+- `DELETE /api/notes/[id]` - Delete note
+- `POST /api/notes/[id]/share` - Generate share link
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Organization
+- `GET /api/organization` - List organizations
+- `POST /api/organization` - Create organization
+- `POST /api/organization/invite` - Send invite
+- `POST /api/organization/join` - Join organization
 
-## Learn More
+### Authentication
+- `POST /api/auth/register` - Register user
+- `POST /api/auth/[...nextauth]` - NextAuth endpoints
 
-To learn more about Next.js, take a look at the following resources:
+### Shared Notes
+- `GET /api/shared/[token]` - Access shared note
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Building
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+npm run build
+npm start
+```
 
-## Deploy on Vercel
+## Database Schema
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Key tables: User, Note, Organization, SharedNote, Invite, Account, Session
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+See `prisma/schema.prisma` for complete schema.
+
+## Git Workflow
+
+```bash
+# Create feature branch
+git checkout -b feature/feature-name
+
+# Commit changes
+git commit -m "Description"
+
+# Push to remote
+git push origin feature/feature-name
+```
+
+## Environment Variables
+
+| Variable | Description |
+|----------|-------------|
+| `DATABASE_URL` | PostgreSQL connection string |
+| `NEXTAUTH_SECRET` | Session encryption key |
+| `NEXTAUTH_URL` | App URL (localhost for dev) |
+
+## Troubleshooting
+
+**Database connection error**: Check `DATABASE_URL` and ensure PostgreSQL is running
+
+**Prisma errors**: Run `npx prisma migrate dev` to apply pending migrations
+
+**Auth issues**: Verify `NEXTAUTH_SECRET` is set
+
+## License
+
+MIT
